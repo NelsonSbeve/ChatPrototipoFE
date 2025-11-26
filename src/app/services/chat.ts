@@ -14,22 +14,18 @@ export class ChatService {
   public username = '';
   public currentRoom = '';
 
-
   connect(username: string) {
     this.username = username;
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:5145/chat')
+      .withUrl(`http://localhost:5145/chat?username=${username}`)
       .withAutomaticReconnect()
       .build();
 
     this.registerHandlers();
 
-    this.hubConnection.start()
-      .catch(err => console.error(err));
+    this.hubConnection.start().catch(err => console.error(err));
   }
-
-
 
   private registerHandlers() {
     this.hubConnection.on('ReceiveMessage', (user, message) => {
