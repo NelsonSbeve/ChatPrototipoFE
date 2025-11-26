@@ -1,9 +1,13 @@
-# STAGE 1 — Build Angular App
+# ================================
+# Stage 1: Build (usa imagem full do Node, não Alpine)
+# ================================
 FROM node:20 AS build
+
 WORKDIR /app
 
-# Copy only package files first (for caching)
+# Copia package.json e lock
 COPY package*.json ./
+RUN npm ci --quiet
 
 # Force dev mode to include build tools (e.g., @angular/cli and @angular/build)
 ENV NODE_ENV=development
@@ -17,11 +21,14 @@ COPY . .
 # Build Angular (use local CLI binary to match project version)
 RUN ./node_modules/.bin/ng build --configuration production
 
-# STAGE 2 — Serve with Nginx
+# ================================
+# Stage 2: Serve com Nginx leve
+# ================================
 FROM nginx:alpine
 
-# Copy built assets (your exact dist path)
-COPY --from=build /app/dist/ChatPrototipo /usr/share/nginx/html/
+# Copia os arquivos buildados (ajusta o nome do projeto se necessário)
+COPY --from=build /app/dist/chat-prototipo/browser /usr/share/nginx/html
+
+# Opcional: config para SPA (refresh de rotas)
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
