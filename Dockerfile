@@ -1,13 +1,13 @@
-# Stage 1: build Angular
-FROM node:20-alpine AS build
+# Stage 1: Build Angular app
+FROM node:20 AS angular-build
 WORKDIR /app
-COPY package*.json ./
+COPY ./ChatPrototipo.UI/package*.json ./
 RUN npm install
-COPY . .
+COPY ./ChatPrototipo.UI/ ./
 RUN npm run build -- --configuration production
 
-# Stage 2: serve via nginx
+# Stage 2: Serve Angular app via Nginx
 FROM nginx:alpine
-COPY --from=build /app/dist/your-app-name /usr/share/nginx/html
+COPY --from=angular-build /app/dist/chat-prototipo /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
