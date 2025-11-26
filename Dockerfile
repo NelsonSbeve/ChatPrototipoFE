@@ -7,22 +7,34 @@ WORKDIR /app
 
 # Copia package.json e lock
 COPY package*.json ./
-RUN npm ci --quiet
 
-# Copia o resto
+# Instala TODAS as dependências (incluindo devDependencies necessárias para build)
+RUN npm ci
+
+# Copia o resto do código
 COPY . .
 
-# Usa npx (funciona sempre na imagem full do Node)
-RUN npx ng build --configuration production
+# Build da aplicação
+RUN npm run build
 
 # ================================
 # Stage 2: Serve com Nginx leve
 # ================================
 FROM nginx:alpine
 
-# Copia os arquivos buildados (ajusta o nome do projeto se necessário)
+# Copia os arquivos buildados
 COPY --from=build /app/dist/chat-prototipo/browser /usr/share/nginx/html
 
-# Opcional: config para SPA (refresh de rotas)
+# Config para SPA (refresh de rotas funcionar)
+RUN echo 'server { \
+  listen 80; \
+  location / { \
+  root /usr/share/nginx/html; \
+  index index.html; \
+  try_files $uri $uri/ /index.html; \
+  } \
+  }' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
