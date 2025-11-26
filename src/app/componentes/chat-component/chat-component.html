@@ -1,0 +1,41 @@
+<div *ngIf="!chat.username">
+  <input [(ngModel)]="username" placeholder="Enter your name" />
+  <select [(ngModel)]="room">
+    <option value="geral">geral</option>
+    <option value="dev">dev</option>
+    <option value="product">product</option>
+  </select>
+  <button (click)="connect()">Join Chat</button>
+</div>
+
+<div *ngIf="chat.username">
+
+  <h3>Room: {{ chat.room }}</h3>
+  <h4>Online Users</h4>
+  <ul>
+    <li *ngFor="let u of chat.onlineUsers">{{ u }}</li>
+  </ul>
+
+  <h4>Messages</h4>
+  <div style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:auto;">
+    <div *ngFor="let m of chat.messages">
+      <b>{{ m.user }}:</b> {{ m.text }}
+    </div>
+  </div>
+
+  <input [(ngModel)]="message" placeholder="Message..." />
+  <button (click)="send()">Send</button>
+
+  <hr />
+
+  <h4>Private Message</h4>
+
+  <input [(ngModel)]="targetUser" placeholder="Send to user..." />
+  <input [(ngModel)]="privateMessage" placeholder="Message..." />
+  <button (click)="sendPm()">Send PM</button>
+
+  <div *ngFor="let pm of chat.privateMessages">
+    <b>PM from {{ pm.from }}:</b> {{ pm.text }}
+  </div>
+
+</div>
