@@ -5,11 +5,11 @@ FROM node:20 AS build
 
 WORKDIR /app
 
-# Copia package.json e lock
+# Copia package.json
 COPY package*.json ./
 
-# Instala TODAS as dependências (incluindo devDependencies necessárias para build)
-RUN npm ci
+# Usa npm install em vez de npm ci (mais tolerante a inconsistências)
+RUN npm install
 
 # Copia o resto do código
 COPY . .
@@ -22,7 +22,7 @@ RUN npm run build
 # ================================
 FROM nginx:alpine
 
-# Copia os arquivos buildados (CAMINHO CORRIGIDO)
+# Copia os arquivos buildados
 COPY --from=build /app/dist/ChatProrotipo/browser /usr/share/nginx/html
 
 # Config para SPA (refresh de rotas funcionar)
