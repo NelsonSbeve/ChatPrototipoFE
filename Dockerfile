@@ -1,7 +1,7 @@
 # ================================
 # Stage 1: Build (usa imagem full do Node, não Alpine)
 # ================================
-FROM node:20 AS build
+FROM node:22 AS build
 
 WORKDIR /app
 
