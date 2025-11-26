@@ -1,31 +1,34 @@
 # ================================
-# Stage 1: Build (usa imagem full do Node, não Alpine)
+# Stage 1: Build
 # ================================
-FROM node:22 AS build
+FROM node:22.14 AS build
 
 WORKDIR /app
 
-# Copia package.json
+# Instala Angular CLI globalmente
+RUN npm install -g @angular/cli@20
+
+# Copia package files
 COPY package*.json ./
 
-# Usa npm install em vez de npm ci (mais tolerante a inconsistências)
-RUN npm install
+# Instala dependências
+RUN npm ci
 
-# Copia o resto do código
+# Copia código
 COPY . .
 
-# Build da aplicação
-RUN npm run build
+# Build (sem --configuration production para testar)
+RUN ng build
 
 # ================================
-# Stage 2: Serve com Nginx leve
+# Stage 2: Serve com Nginx
 # ================================
 FROM nginx:alpine
 
 # Copia os arquivos buildados
 COPY --from=build /app/dist/ChatProrotipo/browser /usr/share/nginx/html
 
-# Config para SPA (refresh de rotas funcionar)
+# Config para SPA
 RUN echo 'server { \
     listen 80; \
     location / { \
