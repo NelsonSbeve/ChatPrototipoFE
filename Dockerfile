@@ -1,21 +1,24 @@
-# Stage 1: Build Angular app
+# STAGE 1 — Build Angular App
 FROM node:20 AS build
 WORKDIR /app
 
-# Copy package files first
+# Copy only package files first
 COPY package*.json ./
 
-# Install dependencies (local + CLI)
+# Install dependencies
 RUN npm install
 
-# Copy rest of the project files
+# Copy the rest of the Angular project
 COPY . .
 
-# Build Angular app
+# Build Angular
 RUN npx ng build --configuration production
 
-# Stage 2: Serve via Nginx
+# STAGE 2 — Serve with Nginx
 FROM nginx:alpine
-COPY --from=build /app/dist/<ChatPrototipo> /usr/share/nginx/html
+
+# IMPORTANT: replace "chat-prototipo" with your actual project name from angular.json
+COPY --from=build /app/dist/* /usr/share/nginx/html/
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
