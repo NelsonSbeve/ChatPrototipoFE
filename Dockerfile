@@ -22,18 +22,18 @@ RUN npm run build
 # ================================
 FROM nginx:alpine
 
-# Copia os arquivos buildados
-COPY --from=build /app/dist/chat-prototipo/browser /usr/share/nginx/html
+# Copia os arquivos buildados (CAMINHO CORRIGIDO)
+COPY --from=build /app/dist/ChatProrotipo/browser /usr/share/nginx/html
 
 # Config para SPA (refresh de rotas funcionar)
 RUN echo 'server { \
-  listen 80; \
-  location / { \
-  root /usr/share/nginx/html; \
-  index index.html; \
-  try_files $uri $uri/ /index.html; \
-  } \
-  }' > /etc/nginx/conf.d/default.conf
+    listen 80; \
+    location / { \
+        root /usr/share/nginx/html; \
+        index index.html; \
+        try_files $uri $uri/ /index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
