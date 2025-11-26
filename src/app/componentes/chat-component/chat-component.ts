@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ChatService } from '../../services/chat';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-chat-component',
@@ -10,26 +10,36 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
-  username = '';
-  room = 'geral';
+  usernameInput = '';
   message = '';
   privateMessage = '';
-  targetUser = '';
+  activePrivateUser = '';
+  rooms = ['geral', 'dev', 'product'];
 
   constructor(public chat: ChatService) { }
 
-  connect() {
-    this.chat.connect(this.username, this.room);
+  login() {
+    if (!this.usernameInput.trim()) return;
+    this.chat.connect(this.usernameInput.trim());
+  }
+
+  switchRoom(room: string) {
+    this.chat.joinRoom(room);
   }
 
   send() {
+    if (!this.message.trim()) return;
     this.chat.sendMessage(this.message);
     this.message = '';
   }
 
-  sendPm() {
-    this.chat.sendPrivateMessage(this.targetUser, this.privateMessage);
-    this.privateMessage = '';
+  startPrivateChat(user: string) {
+    this.activePrivateUser = user;
   }
 
+  sendPm() {
+    if (!this.activePrivateUser || !this.privateMessage.trim()) return;
+    this.chat.sendPrivateMessage(this.activePrivateUser, this.privateMessage);
+    this.privateMessage = '';
+  }
 }

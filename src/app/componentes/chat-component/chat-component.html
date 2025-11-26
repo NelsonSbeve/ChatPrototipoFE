@@ -1,41 +1,66 @@
-<div *ngIf="!chat.username">
-  <input [(ngModel)]="username" placeholder="Enter your name" />
-  <select [(ngModel)]="room">
-    <option value="geral">geral</option>
-    <option value="dev">dev</option>
-    <option value="product">product</option>
-  </select>
-  <button (click)="connect()">Join Chat</button>
+<!-- LOGIN SCREEN -->
+<div *ngIf="!chat.username" class="login-container">
+  <h2>Login</h2>
+  <input [(ngModel)]="usernameInput" placeholder="Enter your name" />
+  <button (click)="login()">Login</button>
 </div>
 
-<div *ngIf="chat.username">
+<!-- MAIN CHAT APP -->
+<div *ngIf="chat.username" class="chat-app">
 
-  <h3>Room: {{ chat.room }}</h3>
-  <h4>Online Users</h4>
-  <ul>
-    <li *ngFor="let u of chat.onlineUsers">{{ u }}</li>
-  </ul>
+  <!-- LEFT SIDEBAR: ROOMS -->
+  <div class="sidebar">
+    <h3>Rooms</h3>
+    <ul>
+      <li *ngFor="let r of rooms">
+        <button (click)="switchRoom(r)" [class.active]="chat.currentRoom === r">{{ r }}</button>
+      </li>
+    </ul>
+  </div>
 
-  <h4>Messages</h4>
-  <div style="border:1px solid #ccc; padding:10px; height:200px; overflow-y:auto;">
-    <div *ngFor="let m of chat.messages">
-      <b>{{ m.user }}:</b> {{ m.text }}
+  <!-- MAIN CHAT AREA -->
+  <div class="chat-main">
+    <h3>{{ chat.currentRoom || 'Select a room' }}</h3>
+
+    <!-- ROOM MESSAGES -->
+    <div class="messages-list" *ngIf="chat.currentRoom">
+      <div *ngFor="let m of chat.messages[chat.currentRoom]"
+        [ngClass]="m.user === chat.username ? 'my-message' : 'other-message'">
+        <b>{{ m.user }}:</b> {{ m.text }}
+      </div>
+    </div>
+
+    <!-- SEND MESSAGE -->
+    <div class="send-section" *ngIf="chat.currentRoom">
+      <input [(ngModel)]="message" placeholder="Message..." />
+      <button (click)="send()">Send</button>
     </div>
   </div>
 
-  <input [(ngModel)]="message" placeholder="Message..." />
-  <button (click)="send()">Send</button>
+  <!-- RIGHT PANEL: ONLINE USERS -->
+  <div class="users-panel">
+    <h4>Online Users</h4>
+    <ul>
+      <li *ngFor="let u of chat.onlineUsers">
+        <button (click)="startPrivateChat(u)">{{ u }}</button>
+      </li>
+    </ul>
+  </div>
 
-  <hr />
+  <!-- PRIVATE CHAT PANEL -->
+  <div *ngIf="activePrivateUser" class="private-chat">
+    <h4>Private Chat with {{ activePrivateUser }}</h4>
+    <div class="messages-list">
+      <div *ngFor="let m of chat.privateMessages[activePrivateUser]" class="other-message">
+        <b>{{ m.from }}:</b> {{ m.text }}
+      </div>
+    </div>
 
-  <h4>Private Message</h4>
-
-  <input [(ngModel)]="targetUser" placeholder="Send to user..." />
-  <input [(ngModel)]="privateMessage" placeholder="Message..." />
-  <button (click)="sendPm()">Send PM</button>
-
-  <div *ngFor="let pm of chat.privateMessages">
-    <b>PM from {{ pm.from }}:</b> {{ pm.text }}
+    <div class="send-section">
+      <input [(ngModel)]="privateMessage" placeholder="Message..." />
+      <button (click)="sendPm()">Send</button>
+      <button (click)="activePrivateUser = ''">Close</button>
+    </div>
   </div>
 
 </div>
