@@ -1,31 +1,28 @@
 # ================================
-# Stage 1: Build do Angular
+# Stage 1: Build (usa imagem full do Node, não Alpine)
 # ================================
-FROM node:20-alpine AS build
+FROM node:20 AS build
 
 WORKDIR /app
 
 # Copia package.json e lock
 COPY package*.json ./
+RUN npm ci --quiet
 
-# Instala dependências (inclui @angular/cli)
-RUN npm ci
-
-# Copia o código todo
+# Copia o resto
 COPY . .
 
-# ←←← A LINHA MÁGICA QUE RESOLVE TUDO ←←←
-# Usa diretamente o binário do Angular CLI que está em node_modules
-RUN ./node_modules/.bin/ng build --configuration production
-# ou equivalente (mais curto):
-# RUN npx ng build --configuration production
+# Usa npx (funciona sempre na imagem full do Node)
+RUN npx ng build --configuration production
 
 # ================================
-# Stage 2: Nginx
+# Stage 2: Serve com Nginx leve
 # ================================
 FROM nginx:alpine
 
-# Copia apenas a pasta browser (Angular 20 gera assim)
+# Copia os arquivos buildados (ajusta o nome do projeto se necessário)
 COPY --from=build /app/dist/chat-prototipo/browser /usr/share/nginx/html
+
+# Opcional: config para SPA (refresh de rotas)
 
 EXPOSE 80
