@@ -18,7 +18,7 @@ export class ChatService {
     this.username = username;
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`http://localhost:5145/chat?username=${username}`)
+      .withUrl(`https://chatprototipobe-production.up.railway.app/chat?username=${username}`)
       .withAutomaticReconnect()
       .build();
 
