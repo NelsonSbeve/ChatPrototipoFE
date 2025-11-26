@@ -1,27 +1,39 @@
-# STAGE 1 — Build Angular App
-FROM node:20 AS build
+# ================================
+# Stage 1: Build do Angular
+# ================================
+FROM node:20-alpine AS build
+
+# Define diretório de trabalho
 WORKDIR /app
 
-# Copy only package files first (for caching)
+# Copia apenas os arquivos de dependências primeiro (melhor cache)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Instala tudo (inclui o @angular/cli que já tens em devDependencies)
+RUN npm ci
 
-# Copy the rest of the Angular project
+# Copia o resto do código
 COPY . .
 
-# Build Angular (fixed: use npx @angular/cli to resolve ng binary)
-RUN npx @angular/cli build --configuration production
+# Executa o build de produção
+# Usa o Angular CLI que está em node_modules → nunca dá "ng: not found"
+RUN npm run build -- --configuration production
+# ou simplesmente: RUN npm run build   (se mudares o script no package.json)
 
-# STAGE 2 — Serve with Nginx
+# ================================
+# Stage 2: Servir com Nginx (produção)
+# ================================
 FROM nginx:alpine
 
-# Copy built assets (fixed: use exact dist path; replace 'chat-prototipo' if needed)
-COPY --from=build /app/dist/ChatPrototipo /usr/share/nginx/html/
+# Copia os arquivos buildados da subpasta browser (Angular 17+ / 20)
+COPY --from=build /app/dist/chat-prototipo/browser /usr/share/nginx/html
 
-# Optional: Copy a custom nginx.conf if you need routing tweaks (e.g., for Angular's SPA fallback)
-# COPY nginx.conf /etc/nginx/nginx.conf
+# (Opcional) Configuração custom do Nginx para SPAs (fallback para index.html)
+# Descomenta as 2 linhas abaixo se tiveres problemas com refresh de rotas
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# (cria um nginx.conf com "try_files $uri $uri/ /index.html;" se precisares)
 
+# Porta padrão
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+# Nginx já inicia automaticamente
