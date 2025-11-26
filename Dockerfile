@@ -26,7 +26,7 @@ RUN ng build
 FROM nginx:alpine
 
 # Copia os arquivos buildados
-COPY --from=build /app/dist/ChatProrotipo/browser /usr/share/nginx/html
+COPY --from=build /app/dist/ChatPrototipo/browser /usr/share/nginx/html
 
 # Config para SPA
 RUN echo 'server { \
