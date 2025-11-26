@@ -5,30 +5,33 @@ FROM node:22.14 AS build
 
 WORKDIR /app
 
-# Instala Angular CLI globalmente
-RUN npm install -g @angular/cli@20
-
-# Copia package files
+# Copy package files first (for layer caching)
 COPY package*.json ./
 
-# Instala dependências
-RUN npm ci
+# Clean npm cache to avoid corruption
+RUN npm cache clean --force
 
-# Copia código
+# Ensure devDeps install (e.g., @angular/cli, @angular/build)
+ENV NODE_ENV=development
+
+# Install dependencies (robust: frozen-lockfile mimics ci, flags reduce flakiness)
+RUN npm install --frozen-lockfile --no-audit --no-fund --progress=false --loglevel=error
+
+# Copy source code
 COPY . .
 
-# Build (sem --configuration production para testar)
-RUN ng build
+# Build Angular (explicit prod config for optimized deploy)
+RUN ./node_modules/.bin/ng build --configuration production
 
 # ================================
-# Stage 2: Serve com Nginx
+# Stage 2: Serve with Nginx
 # ================================
 FROM nginx:alpine
 
-# Copia os arquivos buildados
+# Copy built assets (your fixed path for Angular 20 app builder)
 COPY --from=build /app/dist/ChatPrototipo/browser /usr/share/nginx/html
 
-# Config para SPA
+# Config for SPA routing (handles client-side routes)
 RUN echo 'server { \
     listen 80; \
     location / { \
