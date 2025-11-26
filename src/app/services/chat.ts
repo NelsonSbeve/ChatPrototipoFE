@@ -19,7 +19,7 @@ export class ChatService {
     this.username = username;
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:5154/chat')
+      .withUrl('http://localhost:5145/chat')
       .withAutomaticReconnect()
       .build();
 
