@@ -1,33 +1,27 @@
-# Stage 1: Build the Angular app
-FROM node:20-alpine AS build
-
-# Defina o diretório de trabalho
+# STAGE 1 — Build Angular App
+FROM node:20 AS build
 WORKDIR /app
 
-# Copie os arquivos de dependências primeiro (para cachear camadas)
+# Copy only package files first (for caching)
 COPY package*.json ./
 
-# Instale as dependências
+# Force dev mode to include build tools (fixes skipped devDeps)
+ENV NODE_ENV=development
+
+# Install dependencies (now includes @angular/build)
 RUN npm install
 
-# Copie o resto do código fonte
+# Copy the rest of the Angular project
 COPY . .
 
-# Construa o app para produção
-RUN npm run build
-# Alternativa se precisar explicitar: RUN npm run build -- --configuration production
+# Build Angular
+RUN npx @angular/cli build --configuration production
 
-# Stage 2: Serve com Nginx para produção
+# STAGE 2 — Serve with Nginx
 FROM nginx:alpine
 
-# Copie os arquivos buildados da subpasta browser para o diretório do Nginx
-COPY --from=build /app/dist/ChatPrototipo/browser /usr/share/nginx/html
+# Copy built assets (your exact dist path)
+COPY --from=build /app/dist/ChatPrototipo /usr/share/nginx/html/
 
-# Copie uma configuração custom de Nginx se necessário (opcional)
-# COPY nginx.conf /etc/nginx/nginx.conf
-
-# Exponha a porta 80 (HTTP padrão)
 EXPOSE 80
-
-# O CMD padrão do Nginx já inicia o server
- 
+CMD ["nginx", "-g", "daemon off;"]
