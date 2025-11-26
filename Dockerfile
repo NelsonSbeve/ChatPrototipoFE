@@ -8,6 +8,6 @@ RUN npm run build -- --configuration production
 
 # Stage 2: Serve via Nginx
 FROM nginx:alpine
-COPY --from=build /app/dist/<ChatPrototipoFE> /usr/share/nginx/html
+COPY --from=build /app/dist/<ChatPrototipo> /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
