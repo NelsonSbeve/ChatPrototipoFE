@@ -25,6 +25,7 @@ export class ChatService {
   public privateMessages = signal<{ [user: string]: PrivateMessage[] }>({});
   public onlineUsers = signal<string[]>([]);
   public unreadPrivateMessages = signal<{ [user: string]: number }>({});
+  public onlineUsersInCurrentRoom = signal<string[]>([]);
 
   public username = signal('');
   public currentRoom = signal('');
@@ -109,6 +110,10 @@ export class ChatService {
     // Handler existente: UpdateOnlineUsers
     this.hubConnection.on('UpdateOnlineUsers', (users: string[]) => {
       this.onlineUsers.set(users);
+    });
+
+    this.hubConnection.on('UpdateOnlineUsersInRoom', (users: string[]) => {
+      this.onlineUsersInCurrentRoom.set(users);
     });
   }
 
