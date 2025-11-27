@@ -1,0 +1,10 @@
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Optional: Catch-all for clean URLs (ignores file extensions)
+[[redirects]]
+  from = "/*.*"
+  to = "/index.html"
+  status = 200
