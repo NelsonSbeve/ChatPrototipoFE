@@ -20,21 +20,31 @@ $danger: #f85149;
 $radius: 8px;
 $radius-lg: 12px;
 
-// Reset & Base
+// =======================
+// RESET & BASE
+// =======================
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
   background: $bg-primary;
   color: $text-primary;
-  overflow: hidden;
 }
 
-// Scrollbar
+// =======================
+// SCROLLBAR GLOBAL
+// =======================
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -141,24 +151,29 @@ body {
 // =======================
 .app {
   height: 100vh;
+  width: 100vw;
   display: grid;
   grid-template-columns: 240px 1fr 240px;
   background: $bg-primary;
+  overflow: hidden;
 }
 
 // =======================
-// SIDEBAR
+// SIDEBAR (Left)
 // =======================
 .sidebar {
   background: $bg-secondary;
   border-right: 1px solid $border;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar-header {
   padding: 16px 12px;
   border-bottom: 1px solid $border;
+  flex-shrink: 0;
 
   h2 {
     font-size: 12px;
@@ -173,6 +188,7 @@ body {
   flex: 1;
   padding: 8px;
   overflow-y: auto;
+  min-height: 0;
 
   button {
     width: 100%;
@@ -223,6 +239,7 @@ body {
   align-items: center;
   gap: 10px;
   background: rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
 
   .avatar {
     position: relative;
@@ -298,12 +315,14 @@ body {
 }
 
 // =======================
-// MAIN CONTENT
+// MAIN CONTENT (Center)
 // =======================
 .main {
   display: flex;
   flex-direction: column;
   background: $bg-primary;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .main-header {
@@ -313,6 +332,7 @@ body {
   padding: 0 20px;
   border-bottom: 1px solid $border;
   background: $bg-secondary;
+  flex-shrink: 0;
 
   .channel-info {
     display: flex;
@@ -337,6 +357,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .empty-state {
@@ -363,11 +384,14 @@ body {
 }
 
 // =======================
-// MESSAGES
+// MESSAGES (Com scroll corrigido)
 // =======================
 .messages {
   flex: 1;
+  min-height: 0;
+  /* IMPORTANTE para o flex funcionar */
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -452,6 +476,7 @@ body {
   line-height: 1.5;
   color: $text-primary;
   word-wrap: break-word;
+  word-break: break-word;
 }
 
 .message-time {
@@ -468,6 +493,7 @@ body {
   padding: 20px;
   border-top: 1px solid $border;
   background: $bg-secondary;
+  flex-shrink: 0;
 }
 
 .input-wrapper {
@@ -512,6 +538,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    flex-shrink: 0;
 
     &:hover:not(:disabled) {
       background: $accent-hover;
@@ -530,13 +557,15 @@ body {
 }
 
 // =======================
-// USERS PANEL
+// USERS PANEL (Right)
 // =======================
 .users-panel {
   background: $bg-secondary;
   border-left: 1px solid $border;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .panel-header {
@@ -545,6 +574,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 
   h4 {
     font-size: 12px;
@@ -552,6 +582,9 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: $text-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .count {
@@ -561,12 +594,16 @@ body {
     border-radius: 10px;
     font-size: 12px;
     font-weight: 600;
+    flex-shrink: 0;
   }
 }
 
 .users-list {
   flex: 1;
+  min-height: 0;
+  /* IMPORTANTE para o flex funcionar */
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 8px;
 }
 
@@ -639,11 +676,12 @@ body {
     font-weight: 700;
     min-width: 18px;
     text-align: center;
+    flex-shrink: 0;
   }
 }
 
 // =======================
-// PRIVATE CHAT (DM)
+// PRIVATE CHAT (DM Window)
 // =======================
 .dm-window {
   position: fixed;
@@ -659,6 +697,7 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   animation: slideUp 0.3s ease;
   z-index: 1000;
+  overflow: hidden;
 }
 
 @keyframes slideUp {
@@ -681,6 +720,7 @@ body {
   justify-content: space-between;
   background: $bg-tertiary;
   border-radius: $radius-lg $radius-lg 0 0;
+  flex-shrink: 0;
 
   .dm-user {
     display: flex;
@@ -702,6 +742,7 @@ body {
     font-weight: 600;
     font-size: 13px;
     color: #fff;
+    flex-shrink: 0;
   }
 
   .dm-close {
@@ -718,6 +759,7 @@ body {
     justify-content: center;
     transition: all 0.2s;
     line-height: 1;
+    flex-shrink: 0;
 
     &:hover {
       background: $bg-hover;
@@ -728,7 +770,10 @@ body {
 
 .dm-messages {
   flex: 1;
+  min-height: 0;
+  /* IMPORTANTE para o flex funcionar */
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -757,6 +802,7 @@ body {
   background: $bg-tertiary;
   border-radius: 12px 12px 12px 4px;
   word-wrap: break-word;
+  word-break: break-word;
 
   .dm-text {
     font-size: 14px;
@@ -778,6 +824,7 @@ body {
   display: flex;
   gap: 8px;
   border-radius: 0 0 $radius-lg $radius-lg;
+  flex-shrink: 0;
 
   input {
     flex: 1;
@@ -810,6 +857,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    flex-shrink: 0;
 
     &:hover:not(:disabled) {
       background: $accent-hover;
@@ -904,6 +952,11 @@ body {
     width: calc(100% - 20px);
     height: 400px;
   }
+
+  .unread-badge {
+    top: 10px;
+    right: 10px;
+  }
 }
 
 // =======================
@@ -924,4 +977,25 @@ input:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+// =======================
+// UTILITY CLASSES
+// =======================
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
