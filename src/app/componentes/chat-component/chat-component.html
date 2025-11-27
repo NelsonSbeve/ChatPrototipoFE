@@ -104,7 +104,30 @@
     <div class="users-list">
       <div *ngFor="let user of chat.onlineUsers()" class="user" [class.me]="user === chat.username()"
         (click)="startPrivateChat(user)">
-        <div class="user-avatar">
+        <div class="user-avataquero r">
+          {{ user.charAt(0).toUpperCase() }}
+          <span class="status-indicator" [class.online]="chat.isUserOnline(user)"></span>
+        </div>
+        <span class="user-name">{{ user }}</span>
+        <span class="unread" *ngIf="getUnreadCount(user) > 0">
+          {{ getUnreadCount(user) }}
+        </span>
+      </div>
+    </div>
+
+      <div class="panel-header">
+      @if(chat.currentRoom()){
+        <h4>Online na sala: {{ chat.currentRoom() }}</h4>
+        <span class="count">{{ chat.onlineUsersInCurrentRoom().length }}</span>
+      }
+      @else{
+        <h4>em nenhuma sala</h4>
+      }
+      </div>
+    <div class="users-list">
+      <div *ngFor="let user of chat.onlineUsersInCurrentRoom()" class="user" [class.me]="user === chat.username()"
+        (click)="startPrivateChat(user)">
+        <div class="user-avataquero r">
           {{ user.charAt(0).toUpperCase() }}
           <span class="status-indicator" [class.online]="chat.isUserOnline(user)"></span>
         </div>
