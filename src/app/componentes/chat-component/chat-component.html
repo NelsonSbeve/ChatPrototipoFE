@@ -1,66 +1,156 @@
-<!-- LOGIN SCREEN -->
-<div *ngIf="!chat.username" class="login-container">
-  <h2>Login</h2>
-  <input [(ngModel)]="usernameInput" placeholder="Enter your name" />
-  <button (click)="login()">Login</button>
+<!-- LOGIN -->
+<div *ngIf="!chat.username()" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">💬</div>
+    <h1>Welcome</h1>
+    <p>Enter your name to continue</p>
+    <input [(ngModel)]="usernameInput" placeholder="Your name" (keyup.enter)="login()" maxlength="20" autofocus />
+    <button (click)="login()" [disabled]="usernameInput.trim().length < 2">
+      Continue
+    </button>
+  </div>
 </div>
 
-<!-- MAIN CHAT APP -->
-<div *ngIf="chat.username" class="chat-app">
+<!-- MAIN APP -->
+<div *ngIf="chat.username()" class="app">
 
-  <!-- LEFT SIDEBAR: ROOMS -->
-  <div class="sidebar">
-    <h3>Rooms</h3>
-    <ul>
-      <li *ngFor="let r of rooms">
-        <button (click)="switchRoom(r)" [class.active]="chat.currentRoom === r">{{ r }}</button>
-      </li>
-    </ul>
-  </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>Channels</h2>
+    </div>
 
-  <!-- MAIN CHAT AREA -->
-  <div class="chat-main">
-    <h3>{{ chat.currentRoom || 'Select a room' }}</h3>
+    <nav class="channels">
+      <button *ngFor="let room of rooms" [class.active]="chat.currentRoom() === room" (click)="switchRoom(room)">
+        <span class="channel-icon">#</span>
+        <span class="channel-name">{{ room }}</span>
+      </button>
+    </nav>
 
-    <!-- ROOM MESSAGES -->
-    <div class="messages-list" *ngIf="chat.currentRoom">
-      <div *ngFor="let m of chat.messages[chat.currentRoom]"
-        [ngClass]="m.user === chat.username ? 'my-message' : 'other-message'">
-        <b>{{ m.user }}:</b> {{ m.text }}
+    <div class="user-profile">
+      <div class="avatar">
+        {{ chat.username().charAt(0).toUpperCase() }}
+        <span class="status-dot"></span>
+      </div>
+      <div class="user-info">
+        <div class="username">{{ chat.username() }}</div>
+        <div class="status">
+          <span class="indicator" [class.online]="chat.isConnected()"></span>
+          {{ chat.isConnected() ? 'Online' : 'Connecting...' }}
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <header class="main-header" *ngIf="chat.currentRoom()">
+      <div class="channel-info">
+        <span class="channel-hash">#</span>
+        <h3>{{ chat.currentRoom() }}</h3>
+      </div>
+    </header>
+
+    <!-- NO CHANNEL SELECTED -->
+    <div *ngIf="!chat.currentRoom()" class="no-channel">
+      <div class="empty-state">
+        <div class="empty-icon">👋</div>
+        <h2>Welcome back, {{ chat.username() }}</h2>
+        <p>Select a channel to start chatting</p>
       </div>
     </div>
 
-    <!-- SEND MESSAGE -->
-    <div class="send-section" *ngIf="chat.currentRoom">
-      <input [(ngModel)]="message" placeholder="Message..." />
-      <button (click)="send()">Send</button>
-    </div>
-  </div>
-
-  <!-- RIGHT PANEL: ONLINE USERS -->
-  <div class="users-panel">
-    <h4>Online Users</h4>
-    <ul>
-      <li *ngFor="let u of chat.onlineUsers">
-        <button (click)="startPrivateChat(u)">{{ u }}</button>
-      </li>
-    </ul>
-  </div>
-
-  <!-- PRIVATE CHAT PANEL -->
-  <div *ngIf="activePrivateUser" class="private-chat">
-    <h4>Private Chat with {{ activePrivateUser }}</h4>
-    <div class="messages-list">
-      <div *ngFor="let m of chat.privateMessages[activePrivateUser]" class="other-message">
-        <b>{{ m.from }}:</b> {{ m.text }}
+    <!-- MESSAGES -->
+    <div #messagesList class="messages" *ngIf="chat.currentRoom()">
+      <div *ngFor="let msg of getCurrentRoomMessages()" class="message" [class.own]="msg.user === chat.username()">
+        <div class="message-avatar" *ngIf="msg.user !== chat.username()">
+          {{ msg.user.charAt(0).toUpperCase() }}
+        </div>
+        <div class="message-content">
+          <div class="message-header" *ngIf="msg.user !== chat.username()">
+            <span class="author">{{ msg.user }}</span>
+            <span class="time">{{ formatTime(msg.timestamp) }}</span>
+          </div>
+          <div class="message-text">{{ msg.text }}</div>
+          <div class="message-time" *ngIf="msg.user === chat.username()">
+            {{ formatTime(msg.timestamp) }}
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="send-section">
-      <input [(ngModel)]="privateMessage" placeholder="Message..." />
-      <button (click)="sendPm()">Send</button>
-      <button (click)="activePrivateUser = ''">Close</button>
+    <!-- INPUT -->
+    <div class="input-area" *ngIf="chat.currentRoom()">
+      <div class="input-wrapper">
+        <input [(ngModel)]="message" (keyup.enter)="send()" placeholder="Message #{{ chat.currentRoom() }}"
+          maxlength="500" />
+        <button class="send-btn" (click)="send()" [disabled]="!message.trim()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
     </div>
+  </main>
+
+  <!-- USERS PANEL -->
+  <aside class="users-panel">
+    <div class="panel-header">
+      <h4>Online</h4>
+      <span class="count">{{ chat.onlineUsers().length }}</span>
+    </div>
+
+    <div class="users-list">
+      <div *ngFor="let user of chat.onlineUsers()" class="user" [class.me]="user === chat.username()"
+        (click)="startPrivateChat(user)">
+        <div class="user-avatar">
+          {{ user.charAt(0).toUpperCase() }}
+          <span class="status-indicator" [class.online]="chat.isUserOnline(user)"></span>
+        </div>
+        <span class="user-name">{{ user }}</span>
+        <span class="unread" *ngIf="getUnreadCount(user) > 0">
+          {{ getUnreadCount(user) }}
+        </span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- PRIVATE CHAT -->
+  <div *ngIf="activePrivateUser" class="dm-window">
+    <div class="dm-header">
+      <div class="dm-user">
+        <div class="dm-avatar">
+          {{ activePrivateUser.charAt(0).toUpperCase() }}
+        </div>
+        <span>{{ activePrivateUser }}</span>
+      </div>
+      <button class="dm-close" (click)="closePrivateChat()">×</button>
+    </div>
+
+    <div class="dm-messages">
+      <div *ngFor="let msg of getPrivateMessagesForUser(activePrivateUser)" class="dm-message"
+        [class.sent]="msg.from === chat.username()">
+        <div class="dm-bubble">
+          <div class="dm-text">{{ msg.text }}</div>
+          <div class="dm-time">{{ formatTime(msg.timestamp) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dm-input">
+      <input [(ngModel)]="privateMessage" (keyup.enter)="sendPm()" placeholder="Message..." maxlength="500" />
+      <button (click)="sendPm()" [disabled]="!privateMessage.trim()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- UNREAD BADGE -->
+  <div *ngIf="chat.totalUnreadMessages() > 0" class="unread-badge">
+    {{ chat.totalUnreadMessages() }}
   </div>
 
 </div>
