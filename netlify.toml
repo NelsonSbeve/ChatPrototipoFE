@@ -2,13 +2,6 @@
   NODE_ENV = "development"
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = true
-
-# Optional: Catch-all for clean URLs (ignores file extensions)
-[[redirects]]
   from = "/*.*"
   to = "/index.html"
   status = 200
